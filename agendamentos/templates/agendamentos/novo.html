@@ -1,0 +1,66 @@
+{% extends 'agendamentos/base.html' %}
+
+{% block title %}Novo Agendamento{% endblock %}
+
+{% block content %}
+<h1 class="mb-4">Novo Agendamento</h1>
+
+<form method="post" class="needs-validation" novalidate>
+    {% csrf_token %}
+
+    <!-- Nome do Cliente -->
+    <div class="mb-3">
+        <label for="nome_cliente" class="form-label">Nome do Cliente</label>
+        <input type="text" name="nome_cliente" class="form-control" required>
+    </div>
+
+    <!-- Contato do Cliente -->
+    <div class="mb-3">
+        <label for="contato_cliente" class="form-label">Contato do Cliente</label>
+        <input type="text" name="contato_cliente" class="form-control" required>
+    </div>
+
+    <!-- Profissional -->
+    <div class="mb-3">
+        <label for="profissional" class="form-label">Profissional</label>
+        <select name="profissional" class="form-select" required>
+            <option value="" disabled selected>Escolha um profissional</option>
+            {% for profissional in profissionais %}
+                <option value="{{ profissional.id }}">{{ profissional.nome }} - {{ profissional.especialidade }}</option>
+            {% endfor %}
+        </select>
+    </div>
+
+    <!-- Serviço -->
+    <div class="mb-3">
+        <label for="servico" class="form-label">Serviço</label>
+        <select name="servico" class="form-select" required>
+            <option value="" disabled selected>Escolha um serviço</option>
+            {% for servico in servicos %}
+                <option value="{{ servico.id }}">{{ servico.nome }}</option>
+            {% endfor %}
+        </select>
+    </div>
+
+    <!-- Data -->
+    <div class="mb-3">
+        <label for="data" class="form-label">Data</label>
+        <input type="date" name="data" class="form-control" required>
+    </div>
+
+    <!-- Horário -->
+    <div class="mb-3">
+        <label for="horario" class="form-label">Horário</label>
+        <select name="horario" class="form-select" required>
+            <option value="" disabled selected>Escolha um horário</option>
+            {% for horario in horarios %}
+                <option value="{{ horario }}">{{ horario }}</option>
+            {% endfor %}
+        </select>
+    </div>
+
+    <!-- Botões -->
+    <button type="submit" class="btn btn-success">Salvar</button>
+    <a href="{% url 'lista_agendamentos' %}" class="btn btn-secondary">Voltar</a>
+</form>
+{% endblock %}

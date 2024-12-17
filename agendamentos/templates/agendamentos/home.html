@@ -1,0 +1,15 @@
+{% extends 'agendamentos/base.html' %}
+
+{% block title %}Home - Sistema de Agendamento{% endblock %}
+
+{% block content %}
+<div class="text-center">
+    <h1 class="mb-4">Sistema de Agendamento do Salão de Beleza</h1>
+    <p class="lead">Gerencie seus agendamentos de forma simples e eficiente.</p>
+
+    <div class="d-grid gap-3 d-sm-flex justify-content-sm-center mt-4">
+        <a href="{% url 'lista_agendamentos' %}" class="btn btn-primary btn-lg">Ver Agendamentos</a>
+        <a href="{% url 'novo_agendamento' %}" class="btn btn-success btn-lg">Novo Agendamento</a>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,36 @@
+{% extends 'agendamentos/base.html' %}
+
+{% block title %}Lista de Agendamentos{% endblock %}
+
+{% block content %}
+<h1 class="mb-4">Lista de Agendamentos</h1>
+
+{% if agendamentos %}
+    <table class="table table-striped table-bordered">
+        <thead class="table-dark">
+            <tr>
+                <th>Nome do Cliente</th>
+                <th>Contato</th>
+                <th>Profissional</th>
+                <th>Serviço</th>
+                <th>Data e Hora</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for agendamento in agendamentos %}
+            <tr>
+                <td>{{ agendamento.nome_cliente }}</td>
+                <td>{{ agendamento.contato_cliente }}</td>
+                <td>{{ agendamento.profissional.nome }}</td>
+                <td>{{ agendamento.servico.nome }}</td>
+                <td>{{ agendamento.data_hora }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+{% else %}
+    <div class="alert alert-info">Nenhum agendamento encontrado.</div>
+{% endif %}
+
+<a href="{% url 'novo_agendamento' %}" class="btn btn-success mt-3">Novo Agendamento</a>
+{% endblock %}
