@@ -16,7 +16,7 @@ def gerar_horarios():
     return horarios
 
 def lista_agendamentos(request):
-    agendamentos = Agendamento.objects.all()  # Recupera todos os agendamentos do banco de dados
+    agendamentos = Agendamento.objects.all() 
     return render(request, 'agendamentos/lista.html', {'agendamentos': agendamentos})
 
 
@@ -32,7 +32,6 @@ def novo_agendamento(request):
         profissional = Profissional.objects.get(id=profissional_id)
         servico = Servico.objects.get(id=servico_id)
 
-        # Combina a data e hora
         data_hora = f"{data} {horario}"
         data_hora = datetime.strptime(data_hora, "%Y-%m-%d %H:%M")
 
@@ -47,7 +46,7 @@ def novo_agendamento(request):
 
     profissionais = Profissional.objects.all()
     servicos = Servico.objects.all()
-    horarios = gerar_horarios()  # Gera os horários fixos
+    horarios = gerar_horarios() 
     return render(request, 'agendamentos/novo.html', {
         'profissionais': profissionais,
         'servicos': servicos,

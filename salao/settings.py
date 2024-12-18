@@ -43,8 +43,8 @@ ROOT_URLCONF = 'salao.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],  # Pode estar vazio
-        'APP_DIRS': True,  # Importante! Deve estar como True
+        'DIRS': [],  
+        'APP_DIRS': True,  
         'OPTIONS': {
             'context_processors': [
                 'django.template.context_processors.debug',
