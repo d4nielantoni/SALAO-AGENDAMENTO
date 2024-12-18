@@ -20,6 +20,11 @@
                 <a href="{% url 'novo_agendamento' %}" class="btn btn-primary btn-lg">
                     <i class="bi bi-calendar-plus"></i> Fazer um Agendamento
                 </a>
+                {% if user.is_authenticated %}
+                    <a href="{% url 'lista_agendamentos' %}" class="btn btn-outline-primary btn-lg">
+                        <i class="bi bi-calendar-week"></i> Ver Agendamentos
+                    </a>
+                {% endif %}
             </div>
         </div>
     </div>
