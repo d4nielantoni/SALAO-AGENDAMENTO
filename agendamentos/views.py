@@ -32,7 +32,7 @@ def is_horario_disponivel(data, horario, profissional_id):
     
     # Verifica se é domingo (0 = segunda, 6 = domingo)
     if data_hora.weekday() == 6:
-        return False
+        raise ValueError("Desculpe, não funcionamos aos domingos.")
     
     # Verifica se o horário está dentro do horário de funcionamento (9h às 19h)
     hora = data_hora.hour
@@ -79,13 +79,22 @@ def novo_agendamento(request):
         nome_cliente = request.POST['nome_cliente']
         contato_cliente = request.POST['contato_cliente']
 
-        # Validação do horário
-        if not is_horario_disponivel(data, horario, profissional_id):
+        try:
+            # Validação do horário
+            if not is_horario_disponivel(data, horario, profissional_id):
+                return render(request, 'agendamentos/novo.html', {
+                    'profissionais': Profissional.objects.all(),
+                    'servicos': Servico.objects.all(),
+                    'horarios': gerar_horarios(),
+                    'error': 'Horário não disponível. Por favor, escolha outro horário.',
+                    'today': datetime.now().date()
+                })
+        except ValueError as e:
             return render(request, 'agendamentos/novo.html', {
                 'profissionais': Profissional.objects.all(),
                 'servicos': Servico.objects.all(),
                 'horarios': gerar_horarios(),
-                'error': 'Horário não disponível. Por favor, escolha outro horário.',
+                'error': str(e),
                 'today': datetime.now().date()
             })
 
