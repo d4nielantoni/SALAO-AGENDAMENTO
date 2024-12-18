@@ -1,15 +1,27 @@
 {% extends 'agendamentos/base.html' %}
 
-{% block title %}Home - Sistema de Agendamento{% endblock %}
+{% block title %}Bem-vindo ao Salão de Beleza{% endblock %}
 
 {% block content %}
 <div class="text-center">
-    <h1 class="mb-4">Sistema de Agendamento do Salão de Beleza</h1>
-    <p class="lead">Gerencie seus agendamentos de forma simples e eficiente.</p>
+    <h1 class="display-4 mb-4">Bem-vindo ao Salão de Beleza</h1>
+    
+    {% if messages %}
+        {% for message in messages %}
+            <div class="alert alert-{{ message.tags }}">
+                {{ message }}
+            </div>
+        {% endfor %}
+    {% endif %}
 
-    <div class="d-grid gap-3 d-sm-flex justify-content-sm-center mt-4">
-        <a href="{% url 'lista_agendamentos' %}" class="btn btn-primary btn-lg">Ver Agendamentos</a>
-        <a href="{% url 'novo_agendamento' %}" class="btn btn-success btn-lg">Novo Agendamento</a>
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="d-grid gap-3">
+                <a href="{% url 'novo_agendamento' %}" class="btn btn-primary btn-lg">
+                    <i class="bi bi-calendar-plus"></i> Fazer um Agendamento
+                </a>
+            </div>
+        </div>
     </div>
 </div>
 {% endblock %}

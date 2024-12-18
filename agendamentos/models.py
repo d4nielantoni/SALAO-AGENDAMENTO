@@ -1,8 +1,10 @@
 from django.db import models
 from django.utils import timezone
+from django.contrib.auth.models import User
 from datetime import timedelta
 
 class Profissional(models.Model):
+    usuario = models.OneToOneField(User, on_delete=models.CASCADE, null=True)
     nome = models.CharField(max_length=100)
     especialidade = models.CharField(max_length=50)
 

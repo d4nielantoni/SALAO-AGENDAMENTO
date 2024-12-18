@@ -5,6 +5,12 @@
 {% block content %}
 <h1 class="mb-4">Novo Agendamento</h1>
 
+{% if error %}
+<div class="alert alert-danger" role="alert">
+    {{ error }}
+</div>
+{% endif %}
+
 <form method="post" class="needs-validation" novalidate>
     {% csrf_token %}
 
@@ -45,7 +51,8 @@
     <!-- Data -->
     <div class="mb-3">
         <label for="data" class="form-label">Data</label>
-        <input type="date" name="data" class="form-control" required>
+        <input type="date" name="data" class="form-control" required min="{{ today|date:'Y-m-d' }}">
+        <small class="form-text text-muted">Disponível de segunda a sábado</small>
     </div>
 
     <!-- Horário -->
@@ -57,6 +64,7 @@
                 <option value="{{ horario }}">{{ horario }}</option>
             {% endfor %}
         </select>
+        <small class="form-text text-muted">Horário de funcionamento: 9h às 19h</small>
     </div>
 
     <!-- Botões -->

@@ -1,24 +1,74 @@
 from django.shortcuts import render, redirect
 from datetime import datetime, timedelta
 from .models import Profissional, Servico, Agendamento
+from django.contrib.auth.decorators import login_required
+from django.contrib.auth import authenticate, login, logout
+from django.contrib import messages
 
 def home(request):
     return render(request, 'agendamentos/home.html')
 
+def login_view(request):
+    if request.method == 'POST':
+        username = request.POST['username']
+        password = request.POST['password']
+        user = authenticate(request, username=username, password=password)
+        
+        if user is not None and hasattr(user, 'profissional'):
+            login(request, user)
+            return redirect('lista_agendamentos')
+        else:
+            messages.error(request, 'Usuário ou senha inválidos.')
+    
+    return render(request, 'agendamentos/login.html')
+
+def logout_view(request):
+    logout(request)
+    return redirect('home')
+
+def is_horario_disponivel(data, horario, profissional_id):
+    """Verifica se o horário está disponível para agendamento."""
+    data_hora = datetime.strptime(f"{data} {horario}", "%Y-%m-%d %H:%M")
+    
+    # Verifica se é domingo (0 = segunda, 6 = domingo)
+    if data_hora.weekday() == 6:
+        return False
+    
+    # Verifica se o horário está dentro do horário de funcionamento (9h às 19h)
+    hora = data_hora.hour
+    if hora < 9 or hora >= 19:
+        return False
+    
+    # Verifica se já existe agendamento para este horário e profissional
+    agendamento_existente = Agendamento.objects.filter(
+        profissional_id=profissional_id,
+        data_hora=data_hora
+    ).exists()
+    
+    return not agendamento_existente
+
 def gerar_horarios():
-    """Gera uma lista de horários entre 9:00 e 18:00 em intervalos de 30 minutos."""
+    """Gera uma lista de horários entre 9:00 e 19:00 em intervalos de 30 minutos."""
     horarios = []
     hora = datetime.strptime("09:00", "%H:%M")
-    fim = datetime.strptime("18:00", "%H:%M")
-    while hora <= fim:
+    fim = datetime.strptime("19:00", "%H:%M")
+    while hora < fim:
         horarios.append(hora.strftime("%H:%M"))
         hora += timedelta(minutes=30)
     return horarios
 
+@login_required(login_url='login')
 def lista_agendamentos(request):
-    agendamentos = Agendamento.objects.all() 
+    # Verifica se o usuário é um profissional
+    if not hasattr(request.user, 'profissional'):
+        messages.error(request, 'Acesso restrito a profissionais.')
+        return redirect('home')
+        
+    # Mostra apenas os agendamentos do profissional logado
+    agendamentos = Agendamento.objects.filter(
+        profissional=request.user.profissional
+    ).order_by('data_hora')
     return render(request, 'agendamentos/lista.html', {'agendamentos': agendamentos})
-
 
 def novo_agendamento(request):
     if request.method == 'POST':
@@ -28,6 +78,16 @@ def novo_agendamento(request):
         horario = request.POST['horario']
         nome_cliente = request.POST['nome_cliente']
         contato_cliente = request.POST['contato_cliente']
+
+        # Validação do horário
+        if not is_horario_disponivel(data, horario, profissional_id):
+            return render(request, 'agendamentos/novo.html', {
+                'profissionais': Profissional.objects.all(),
+                'servicos': Servico.objects.all(),
+                'horarios': gerar_horarios(),
+                'error': 'Horário não disponível. Por favor, escolha outro horário.',
+                'today': datetime.now().date()
+            })
 
         profissional = Profissional.objects.get(id=profissional_id)
         servico = Servico.objects.get(id=servico_id)
@@ -42,13 +102,16 @@ def novo_agendamento(request):
             nome_cliente=nome_cliente,
             contato_cliente=contato_cliente
         )
-        return redirect('lista_agendamentos')
+        messages.success(request, 'Agendamento realizado com sucesso!')
+        return redirect('home')
 
     profissionais = Profissional.objects.all()
     servicos = Servico.objects.all()
-    horarios = gerar_horarios() 
+    horarios = gerar_horarios()
+    today = datetime.now().date()
     return render(request, 'agendamentos/novo.html', {
         'profissionais': profissionais,
         'servicos': servicos,
-        'horarios': horarios
+        'horarios': horarios,
+        'today': today
     })

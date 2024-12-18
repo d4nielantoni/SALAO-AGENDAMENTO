@@ -14,6 +14,7 @@
                 <th>Profissional</th>
                 <th>Serviço</th>
                 <th>Data e Hora</th>
+                <th>Ações</th>
             </tr>
         </thead>
         <tbody>
@@ -23,7 +24,14 @@
                 <td>{{ agendamento.contato_cliente }}</td>
                 <td>{{ agendamento.profissional.nome }}</td>
                 <td>{{ agendamento.servico.nome }}</td>
-                <td>{{ agendamento.data_hora }}</td>
+                <td>{{ agendamento.data_hora|date:"d/m/Y H:i" }}</td>
+                <td>
+                    <a href="https://wa.me/55{{ agendamento.contato_cliente }}?text=Olá {{ agendamento.nome_cliente }}, seu agendamento está confirmado para: {{ agendamento.data_hora|date:'d/m/Y' }} às {{ agendamento.data_hora|date:'H:i' }}. Serviço: {{ agendamento.servico.nome }} com {{ agendamento.profissional.nome }}." 
+                       target="_blank" 
+                       class="btn btn-success btn-sm">
+                        <i class="bi bi-whatsapp"></i> WhatsApp
+                    </a>
+                </td>
             </tr>
             {% endfor %}
         </tbody>
