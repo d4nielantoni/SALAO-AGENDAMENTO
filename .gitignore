@@ -1,3 +1,9 @@
 pycache
 __pycache__
 *.pyc
+*.pyo
+cython_debug.c
+cython_debug.h
+cython_debug.so
+cython_debug.cpp
+
