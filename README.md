@@ -19,7 +19,7 @@ Antes de começar, certifique-se de ter o seguinte instalado:
 1. Clone o repositório:
 
    ```bash
-   git clone https://github.com/daniel4ntoni/SALAO-AGENDAMENTO.git
+   git clone https://github.com/d4nielantoni/SALAO-AGENDAMENTO.git
    ```
 
 2. Navegue até o diretório do projeto:
