@@ -34,9 +34,16 @@ def is_horario_disponivel(data, horario, profissional_id):
     if data_hora.weekday() == 6:
         return False
     
-    # Verifica se o horário está dentro do horário de funcionamento (9h às 19h)
+    # Verifica se o horário está dentro do horário de funcionamento
     hora = data_hora.hour
-    if hora < 9 or hora >= 19:
+    minuto = data_hora.minute
+    
+    # Verifica se está no intervalo do almoço (12:00 às 14:00)
+    if hora >= 12 and hora < 14:
+        return False
+    
+    # Verifica se está fora do horário de funcionamento
+    if hora < 9 or (hora == 19 and minuto > 0) or hora >= 19:
         return False
     
     # Verifica se já existe agendamento para este horário e profissional
@@ -48,11 +55,19 @@ def is_horario_disponivel(data, horario, profissional_id):
     return not agendamento_existente
 
 def gerar_horarios():
-    """Gera uma lista de horários entre 9:00 e 19:00 em intervalos de 30 minutos."""
+    """Gera uma lista de horários entre 9:00 e 19:00, excluindo o intervalo de 12:00 às 14:00."""
     horarios = []
+    # Período da manhã (9:00 às 12:00)
     hora = datetime.strptime("09:00", "%H:%M")
-    fim = datetime.strptime("19:00", "%H:%M")
-    while hora < fim:
+    fim_manha = datetime.strptime("12:00", "%H:%M")
+    while hora < fim_manha:
+        horarios.append(hora.strftime("%H:%M"))
+        hora += timedelta(minutes=30)
+    
+    # Período da tarde (14:00 às 19:00)
+    hora = datetime.strptime("14:00", "%H:%M")
+    fim_tarde = datetime.strptime("19:00", "%H:%M")
+    while hora < fim_tarde:
         horarios.append(hora.strftime("%H:%M"))
         hora += timedelta(minutes=30)
     return horarios

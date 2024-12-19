@@ -23,9 +23,9 @@ class Agendamento(models.Model):
     profissional = models.ForeignKey(Profissional, on_delete=models.CASCADE)
     servico = models.ForeignKey(Servico, on_delete=models.CASCADE)
     data_hora = models.DateTimeField()
-    nome_cliente = models.CharField(max_length=100) 
-    contato_cliente = models.CharField(max_length=15) 
-    criado_em = models.DateTimeField(default=timezone.now)
+    nome_cliente = models.CharField(max_length=100)
+    contato_cliente = models.CharField(max_length=15)
+    criado_em = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
         return f"{self.profissional} - {self.servico} em {self.data_hora}"
