@@ -51,7 +51,7 @@
     <!-- Data -->
     <div class="mb-3">
         <label for="data" class="form-label">Data</label>
-        <input type="date" name="data" class="form-control" required min="{{ today|date:'Y-m-d' }}">
+        <input type="date" name="data" id="data" class="form-control" required min="{{ today|date:'Y-m-d' }}">
         <small class="form-text text-muted">Disponível de segunda a sábado</small>
     </div>
 
@@ -71,4 +71,15 @@
     <button type="submit" class="btn btn-success">Salvar</button>
     <a href="{% url 'lista_agendamentos' %}" class="btn btn-secondary">Voltar</a>
 </form>
+    
+    <script>
+        // Desabilita domingos no calendário
+        document.getElementById('data').addEventListener('input', function(e) {
+            const date = new Date(this.value);
+            if (date.getDay() === 0) { // 0 = Domingo
+                alert('Desculpe, não realizamos agendamentos aos domingos. Por favor, escolha outro dia.');
+                this.value = '';
+            }
+        });
+    </script>
 {% endblock %}
