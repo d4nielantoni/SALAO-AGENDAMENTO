@@ -3,39 +3,57 @@
 {% block title %}Lista de Agendamentos{% endblock %}
 
 {% block content %}
+<style>
+    @media (max-width: 768px) {
+        h1 {
+            font-size: 1.5rem;
+        }
+        .table th, .table td {
+            font-size: 0.9rem;
+            padding: 0.3rem;  
+        }
+        .btn {
+            font-size: 0.8rem;
+            padding: 0.3rem 0.5rem;
+        }
+    }
+</style>
+
 <h1 class="mb-4">Lista de Agendamentos</h1>
 
 {% if agendamentos %}
-    <table class="table table-striped table-bordered">
-        <thead class="table-dark">
-            <tr>
-                <th>Nome do Cliente</th>
-                <th>Contato</th>
-                <th>Profissional</th>
-                <th>Serviço</th>
-                <th>Data e Hora</th>
-                <th>Ações</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for agendamento in agendamentos %}
-            <tr>
-                <td>{{ agendamento.nome_cliente }}</td>
-                <td>{{ agendamento.contato_cliente }}</td>
-                <td>{{ agendamento.profissional.nome }}</td>
-                <td>{{ agendamento.servico.nome }}</td>
-                <td>{{ agendamento.data_hora|date:"d/m/Y H:i" }}</td>
-                <td>
-                    <a href="https://wa.me/55{{ agendamento.contato_cliente }}?text=Olá {{ agendamento.nome_cliente }}, seu agendamento está confirmado para: {{ agendamento.data_hora|date:'d/m/Y' }} às {{ agendamento.data_hora|date:'H:i' }}. Serviço: {{ agendamento.servico.nome }} com {{ agendamento.profissional.nome }}." 
-                       target="_blank" 
-                       class="btn btn-success btn-sm">
-                        <i class="bi bi-whatsapp"></i> WhatsApp
-                    </a>
-                </td>
-            </tr>
-            {% endfor %}
-        </tbody>
-    </table>
+    <div class="table-responsive">
+        <table class="table table-striped table-bordered">
+            <thead class="table-dark">
+                <tr>
+                    <th>Nome do Cliente</th>
+                    <th>Contato</th>
+                    <th>Profissional</th>
+                    <th>Serviço</th>
+                    <th>Data e Hora</th>
+                    <th>Ações</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for agendamento in agendamentos %}
+                <tr>
+                    <td>{{ agendamento.nome_cliente }}</td>
+                    <td>{{ agendamento.contato_cliente }}</td>
+                    <td>{{ agendamento.profissional.nome }}</td>
+                    <td>{{ agendamento.servico.nome }}</td>
+                    <td>{{ agendamento.data_hora|date:"d/m/Y H:i" }}</td>
+                    <td>
+                        <a href="https://wa.me/55{{ agendamento.contato_cliente }}?text=Olá {{ agendamento.nome_cliente }}, seu agendamento está confirmado para: {{ agendamento.data_hora|date:'d/m/Y' }} às {{ agendamento.data_hora|date:'H:i' }}. Serviço: {{ agendamento.servico.nome }} com {{ agendamento.profissional.nome }}." 
+                           target="_blank" 
+                           class="btn btn-success btn-sm">
+                            <i class="bi bi-whatsapp"></i> WhatsApp
+                        </a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
 {% else %}
     <div class="alert alert-info">Nenhum agendamento encontrado.</div>
 {% endif %}
