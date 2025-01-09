@@ -21,11 +21,16 @@ class Servico(models.Model):
 
 class Agendamento(models.Model):
     profissional = models.ForeignKey(Profissional, on_delete=models.CASCADE)
-    servico = models.ForeignKey(Servico, on_delete=models.CASCADE)
+    servicos = models.ManyToManyField(Servico)
     data_hora = models.DateTimeField()
     nome_cliente = models.CharField(max_length=100)
     contato_cliente = models.CharField(max_length=15)
     criado_em = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
-        return f"{self.profissional} - {self.servico} em {self.data_hora}"
+        servicos_str = ", ".join([s.nome for s in self.servicos.all()])
+        return f"{self.nome_cliente} - {servicos_str} com {self.profissional} em {self.data_hora.strftime('%d/%m/%Y %H:%M')}"
+
+    @property
+    def preco_total(self):
+        return sum(servico.preco for servico in self.servicos.all())

@@ -13,6 +13,11 @@ class ServicoAdmin(admin.ModelAdmin):
 
 @admin.register(Agendamento)
 class AgendamentoAdmin(admin.ModelAdmin):
-    list_display = ('nome_cliente', 'profissional', 'servico', 'data_hora')
-    list_filter = ('profissional', 'servico', 'data_hora')
+    list_display = ('nome_cliente', 'profissional', 'get_servicos', 'data_hora')
+    list_filter = ('profissional', 'data_hora', 'servicos')
     search_fields = ('nome_cliente', 'contato_cliente')
+    filter_horizontal = ('servicos',)
+
+    def get_servicos(self, obj):
+        return ", ".join([s.nome for s in obj.servicos.all()])
+    get_servicos.short_description = 'Serviços'

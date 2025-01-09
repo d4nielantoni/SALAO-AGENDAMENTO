@@ -6,4 +6,8 @@ cython_debug.c
 cython_debug.h
 cython_debug.so
 cython_debug.cpp
+db.sqlite3
+venv
+
+
 

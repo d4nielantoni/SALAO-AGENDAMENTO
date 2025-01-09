@@ -3,83 +3,154 @@
 {% block title %}Novo Agendamento{% endblock %}
 
 {% block content %}
-<h1 class="mb-4">Novo Agendamento</h1>
+<div class="container">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1>Novo Agendamento</h1>
+        <a href="{% url 'lista_agendamentos' %}" class="btn btn-secondary">
+            <i class="bi bi-arrow-left"></i> Voltar
+        </a>
+    </div>
 
-{% if error %}
-<div class="alert alert-danger" role="alert">
-    {{ error }}
+    {% if error %}
+    <div class="alert alert-danger" role="alert">
+        <i class="bi bi-exclamation-triangle"></i> {{ error }}
+    </div>
+    {% endif %}
+
+    <form method="post" class="needs-validation" novalidate>
+        {% csrf_token %}
+        <div class="card shadow-sm mb-4">
+            <div class="card-body">
+                <div class="row mb-4">
+                    <div class="col-md-6">
+                        <label for="nome_cliente" class="form-label">Nome do Cliente</label>
+                        <input type="text" name="nome_cliente" class="form-control" required>
+                    </div>
+                    <div class="col-md-6">
+                        <label for="contato_cliente" class="form-label">Contato do Cliente</label>
+                        <input type="text" name="contato_cliente" class="form-control" required>
+                    </div>
+                </div>
+
+                <div class="mb-4">
+                    <label for="profissional" class="form-label">Profissional</label>
+                    <select name="profissional" class="form-select" required>
+                        <option value="" disabled selected>Escolha um profissional</option>
+                        {% for profissional in profissionais %}
+                            <option value="{{ profissional.id }}">{{ profissional.nome }} - {{ profissional.especialidade }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div class="mb-4">
+                    <label class="form-label">Serviços</label>
+                    <div class="row row-cols-1 row-cols-md-2 g-3" id="servicos-container">
+                        {% for servico in servicos %}
+                        <div class="col servico-item">
+                            <div class="card h-100">
+                                <div class="card-body">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" name="servicos" value="{{ servico.id }}" id="servico{{ servico.id }}" data-nome="{{ servico.nome }}">
+                                        <label class="form-check-label" for="servico{{ servico.id }}">
+                                            <strong>{{ servico.nome }}</strong>
+                                            <div class="text-muted">
+                                                <small>R$ {{ servico.preco }}</small>
+                                            </div>
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+
+                <div class="row mb-4">
+                    <div class="col-md-6">
+                        <label for="data" class="form-label">Data</label>
+                        <input type="date" name="data" id="data" class="form-control" required min="{{ today|date:'Y-m-d' }}">
+                        <small class="text-muted">Disponível de segunda a sábado</small>
+                    </div>
+                    <div class="col-md-6">
+                        <label for="horario" class="form-label">Horário</label>
+                        <select name="horario" class="form-select" required>
+                            <option value="" disabled selected>Escolha um horário</option>
+                            {% for horario in horarios %}
+                                <option value="{{ horario }}">{{ horario }}</option>
+                            {% endfor %}
+                        </select>
+                        <small class="text-muted">Horário de funcionamento: 9h às 12h e 14h às 19h</small>
+                    </div>
+                </div>
+
+                <div class="d-grid">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="bi bi-calendar-check"></i> Confirmar Agendamento
+                    </button>
+                </div>
+            </div>
+        </div>
+    </form>
 </div>
-{% endif %}
 
-<form method="post" class="needs-validation" novalidate>
-    {% csrf_token %}
+<style>
+    .card {
+        transition: transform 0.2s;
+    }
+    .card:hover {
+        transform: translateY(-2px);
+    }
+    .form-check-input:checked + .form-check-label {
+        color: #0d6efd;
+    }
+    .form-check-label {
+        cursor: pointer;
+        width: 100%;
+    }
+</style>
 
-    <!-- Nome do Cliente -->
-    <div class="mb-3">
-        <label for="nome_cliente" class="form-label">Nome do Cliente</label>
-        <input type="text" name="nome_cliente" class="form-control" required>
-    </div>
+<script>
+    // Desabilita domingos no calendário
+    document.getElementById('data').addEventListener('input', function(e) {
+        const date = new Date(this.value);
+        if (date.getDay() === 0) { // 0 = Domingo
+            alert('Desculpe, não realizamos agendamentos aos domingos. Por favor, escolha outro dia.');
+            this.value = '';
+        }
+    });
 
-    <!-- Contato do Cliente -->
-    <div class="mb-3">
-        <label for="contato_cliente" class="form-label">Contato do Cliente</label>
-        <input type="text" name="contato_cliente" class="form-control" required>
-    </div>
-
-    <!-- Profissional -->
-    <div class="mb-3">
-        <label for="profissional" class="form-label">Profissional</label>
-        <select name="profissional" class="form-select" required>
-            <option value="" disabled selected>Escolha um profissional</option>
-            {% for profissional in profissionais %}
-                <option value="{{ profissional.id }}">{{ profissional.nome }} - {{ profissional.especialidade }}</option>
-            {% endfor %}
-        </select>
-    </div>
-
-    <!-- Serviço -->
-    <div class="mb-3">
-        <label for="servico" class="form-label">Serviço</label>
-        <select name="servico" class="form-select" required>
-            <option value="" disabled selected>Escolha um serviço</option>
-            {% for servico in servicos %}
-                <option value="{{ servico.id }}">{{ servico.nome }}</option>
-            {% endfor %}
-        </select>
-    </div>
-
-    <!-- Data -->
-    <div class="mb-3">
-        <label for="data" class="form-label">Data</label>
-        <input type="date" name="data" id="data" class="form-control" required min="{{ today|date:'Y-m-d' }}">
-        <small class="form-text text-muted">Disponível de segunda a sábado</small>
-    </div>
-
-    <!-- Horário -->
-    <div class="mb-3">
-        <label for="horario" class="form-label">Horário</label>
-        <select name="horario" class="form-select" required>
-            <option value="" disabled selected>Escolha um horário</option>
-            {% for horario in horarios %}
-                <option value="{{ horario }}">{{ horario }}</option>
-            {% endfor %}
-        </select>
-        <small class="form-text text-muted">Horário de funcionamento: 9h às 12h e 14h às 19h</small>
-    </div>
-
-    <!-- Botões -->
-    <button type="submit" class="btn btn-success">Salvar</button>
-    <a href="{% url 'lista_agendamentos' %}" class="btn btn-secondary">Voltar</a>
-</form>
-    
-    <script>
-        // Desabilita domingos no calendário
-        document.getElementById('data').addEventListener('input', function(e) {
-            const date = new Date(this.value);
-            if (date.getDay() === 0) { // 0 = Domingo
-                alert('Desculpe, não realizamos agendamentos aos domingos. Por favor, escolha outro dia.');
-                this.value = '';
+    // Filtrar serviços por profissional
+    document.querySelector('select[name="profissional"]').addEventListener('change', function() {
+        const profissionalNome = this.options[this.selectedIndex].text.split(' - ')[0];
+        const servicosItems = document.querySelectorAll('.servico-item');
+        
+        servicosItems.forEach(item => {
+            const checkbox = item.querySelector('input[type="checkbox"]');
+            const servicoNome = checkbox.dataset.nome;
+            
+            // Limpa a seleção anterior
+            checkbox.checked = false;
+            
+            if (profissionalNome.toLowerCase() === 'maria') {
+                // Mostra apenas manicure e pedicure para Maria
+                const isManicureOuPedicure = servicoNome.toLowerCase().includes('manicure') || 
+                                           servicoNome.toLowerCase().includes('pedicure');
+                item.style.display = isManicureOuPedicure ? '' : 'none';
+            } else {
+                // Para outros profissionais, mostra todos os serviços exceto manicure e pedicure
+                const isManicureOuPedicure = servicoNome.toLowerCase().includes('manicure') || 
+                                           servicoNome.toLowerCase().includes('pedicure');
+                item.style.display = isManicureOuPedicure ? 'none' : '';
             }
         });
-    </script>
+    });
+
+    // Esconde todos os serviços inicialmente
+    document.addEventListener('DOMContentLoaded', function() {
+        const servicosItems = document.querySelectorAll('.servico-item');
+        servicosItems.forEach(item => {
+            item.style.display = 'none';
+        });
+    });
+</script>
 {% endblock %}

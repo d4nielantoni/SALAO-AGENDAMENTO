@@ -82,60 +82,104 @@ def lista_agendamentos(request):
     # Mostra apenas os agendamentos do profissional logado
     agendamentos = Agendamento.objects.filter(
         profissional=request.user.profissional
-    ).order_by('data_hora')
+    ).prefetch_related('servicos').select_related('profissional').order_by('data_hora')
     return render(request, 'agendamentos/lista.html', {'agendamentos': agendamentos})
 
-def novo_agendamento(request):
-    if request.method == 'POST':
-        profissional_id = request.POST['profissional']
-        servico_id = request.POST['servico']
-        data = request.POST['data']
-        horario = request.POST['horario']
-        nome_cliente = request.POST['nome_cliente']
-        contato_cliente = request.POST['contato_cliente']
-
-        try:
-            # Validação do horário
-            if not is_horario_disponivel(data, horario, profissional_id):
-                return render(request, 'agendamentos/novo.html', {
-                    'profissionais': Profissional.objects.all(),
-                    'servicos': Servico.objects.all(),
-                    'horarios': gerar_horarios(),
-                    'error': 'Horário não disponível. Por favor, escolha outro horário.',
-                    'today': datetime.now().date()
-                })
-        except ValueError as e:
-            return render(request, 'agendamentos/novo.html', {
-                'profissionais': Profissional.objects.all(),
-                'servicos': Servico.objects.all(),
-                'horarios': gerar_horarios(),
-                'error': str(e),
-                'today': datetime.now().date()
-            })
-
-        profissional = Profissional.objects.get(id=profissional_id)
-        servico = Servico.objects.get(id=servico_id)
-
-        data_hora = f"{data} {horario}"
-        data_hora = datetime.strptime(data_hora, "%Y-%m-%d %H:%M")
-
-        Agendamento.objects.create(
-            profissional=profissional,
-            servico=servico,
-            data_hora=data_hora,
-            nome_cliente=nome_cliente,
-            contato_cliente=contato_cliente
-        )
-        messages.success(request, 'Agendamento realizado com sucesso!')
+@login_required(login_url='login')
+def deletar_agendamento(request, agendamento_id):
+    # Verifica se o usuário é um profissional
+    if not hasattr(request.user, 'profissional'):
+        messages.error(request, 'Acesso restrito a profissionais.')
         return redirect('home')
+    
+    try:
+        agendamento = Agendamento.objects.get(id=agendamento_id, profissional=request.user.profissional)
+        agendamento.delete()
+        messages.success(request, 'Agendamento excluído com sucesso!')
+    except Agendamento.DoesNotExist:
+        messages.error(request, 'Agendamento não encontrado.')
+    
+    return redirect('lista_agendamentos')
 
+def novo_agendamento(request):
     profissionais = Profissional.objects.all()
     servicos = Servico.objects.all()
     horarios = gerar_horarios()
     today = datetime.now().date()
-    return render(request, 'agendamentos/novo.html', {
+
+    context = {
         'profissionais': profissionais,
         'servicos': servicos,
         'horarios': horarios,
         'today': today
-    })
+    }
+
+    if request.method == 'POST':
+        try:
+            profissional_id = request.POST['profissional']
+            servicos_ids = request.POST.getlist('servicos')
+            data = request.POST['data']
+            horario = request.POST['horario']
+            nome_cliente = request.POST['nome_cliente']
+            contato_cliente = request.POST['contato_cliente']
+
+            # Validação dos campos obrigatórios
+            if not all([profissional_id, servicos_ids, data, horario, nome_cliente, contato_cliente]):
+                context['error'] = 'Todos os campos são obrigatórios.'
+                return render(request, 'agendamentos/novo.html', context)
+
+            # Validação do horário
+            try:
+                if not is_horario_disponivel(data, horario, profissional_id):
+                    context['error'] = 'Horário não disponível. Por favor, escolha outro horário.'
+                    return render(request, 'agendamentos/novo.html', context)
+            except ValueError as e:
+                context['error'] = str(e)
+                return render(request, 'agendamentos/novo.html', context)
+
+            try:
+                profissional = Profissional.objects.get(id=profissional_id)
+                servicos_selecionados = Servico.objects.filter(id__in=servicos_ids)
+
+                if not servicos_selecionados:
+                    context['error'] = 'Selecione pelo menos um serviço.'
+                    return render(request, 'agendamentos/novo.html', context)
+
+                data_hora = f"{data} {horario}"
+                data_hora = datetime.strptime(data_hora, "%Y-%m-%d %H:%M")
+
+                # Validar se a data não é passada
+                if data_hora < datetime.now():
+                    context['error'] = 'Não é possível agendar para uma data passada.'
+                    return render(request, 'agendamentos/novo.html', context)
+
+                # Criar o agendamento
+                agendamento = Agendamento.objects.create(
+                    profissional=profissional,
+                    data_hora=data_hora,
+                    nome_cliente=nome_cliente,
+                    contato_cliente=contato_cliente
+                )
+                # Adicionar os serviços selecionados
+                agendamento.servicos.set(servicos_selecionados)
+
+                messages.success(request, 'Agendamento realizado com sucesso!')
+                if request.user.is_authenticated and hasattr(request.user, 'profissional'):
+                    return redirect('lista_agendamentos')
+                return redirect('home')
+
+            except Profissional.DoesNotExist:
+                context['error'] = 'Profissional não encontrado.'
+                return render(request, 'agendamentos/novo.html', context)
+            except Exception as e:
+                context['error'] = f'Erro ao criar agendamento: {str(e)}'
+                return render(request, 'agendamentos/novo.html', context)
+
+        except KeyError as e:
+            context['error'] = f'Campo obrigatório não preenchido: {str(e)}'
+            return render(request, 'agendamentos/novo.html', context)
+        except Exception as e:
+            context['error'] = f'Erro inesperado: {str(e)}'
+            return render(request, 'agendamentos/novo.html', context)
+
+    return render(request, 'agendamentos/novo.html', context)
