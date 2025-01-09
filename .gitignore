@@ -8,4 +8,5 @@ cython_debug.so
 cython_debug.cpp
 db.sqlite3
 db.sqlite3-journal
+venv
 
