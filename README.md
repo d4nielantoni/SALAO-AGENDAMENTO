@@ -65,3 +65,6 @@ Contribuições são bem-vindas! Sinta-se à vontade para abrir um *pull request
 3. Faça suas alterações e commit (`git commit -m 'Adicionando uma nova feature'`).
 4. Envie para o repositório remoto (`git push origin feature/nome-da-sua-feature`).
 5. Abra um *pull request*. -->
+
+
+## O Projeto está hospedado no pythonanywhere (https://daniel4ntoni.pythonanywhere.com/)
